@@ -1,0 +1,58 @@
+#container {
+    margin: 0 auto;
+    width: 80%;
+}
+
+#main-header {
+    background-image: url('../images/brandon-mowinkel-740740-unsplash_edt.jpg');
+}
+
+h1 {
+    color: #ffffff;
+}
+
+h3 {
+    font-style: italic;
+    color: #ffffff;
+}
+
+.card {
+    margin-top: 25px;
+    margin-bottom: 20px;
+
+}
+
+table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+ 
+th {
+     background: black;
+     color: #ffffff;
+     font-size: 14px;
+     
+ }
+
+td {
+    border: 1px solid black;
+    line-height: 10px;
+    font-size: 12px;
+}
+
+tr:nth-child(even) {
+    background-color: #e1effd;
+}
+
+#add-train-area {
+    margin-left: 150px;
+    font-size: 12px;
+    line-height: 10px;
+    border: 1px solid black;
+    padding-top: 10px;
+}
+
+
+
+

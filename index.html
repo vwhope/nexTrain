@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>nexTrain</title>
+    
+    <!-- css files -->
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css"/>
+
+    <!-- may use custom fonts later -->
+    <!--  <link href="https://fonts.googleapis.com/css?family=Audiowide|Cabin+Sketch|Cinzel|Fredericka+the+Great|Glegoo|Josefin+Slab|Marcellus+SC|Special+Elite" rel="stylesheet"> -->
+    <!--  <link href="https://fonts.googleapis.com/css?family=Cabin+Sketch" rel="stylesheet" /> -->
+  
+    <!-- Bootstrap CDN-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+   
+
+   
+    <!-- Moment.js why did this link not work? It gives me errors if I use it -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/af.js"></script> -->
+  
+    
+
+</head>
+<body>
+    
+    <div id="container">
+            <br>
+            <div class="jumbotron" id="main-header">
+                <h1 class="text-center">nexTrain</h1>
+                <h3 class="text-center">making connections easier</h3>
+            </div> 
+            
+            <img src="assets/images/brandon-mowinkel-740740-unsplash_edt.jpg" alt="moving train" height="200">
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card card-default">
+                        <div class="card-header" id="schedule-header">
+                            CURRENT DATE and TIME: Thursday May 8, 1922
+                        </div>
+                        <div class="card-body" id="schedule-area">        
+                            <table class="table table-striped" id="train-table">
+                                <thead>
+                                    <tr>
+                                        <th id="train-name-header">Train Name</th>
+                                        <th id="destination-header">Destination</th>
+                                        <th id="frequency-header">Frequency (min)</th>
+                                        <th id="next-arrival-header">Next Arrival</th>
+                                        <th id="minutes-away-header">Minutes Away</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td id="train-name-display">Train A</td>
+                                        <td id="destination-display">Ohio</td>
+                                        <td id="frequency-display">25</td>
+                                        <td id="next-arrival-display">05:35 PM</td>
+                                        <td id="minutes-away-display">600</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div> <!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!--end row -->
+                
+            <br>
+        
+        <div class="row">
+            <div class="col-lg-3" id="add-train-area">
+                <div class="card card-default">
+                    <div class="card-header" id="add-train-header">
+                        Add Train
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group row">
+                                <label for="train-name-input">Train Name</label>
+                                <input class="form-control" id="train-name-input" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="destination-input">Destination</label>
+                                <input class="form-control" id="destination-input" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="first-train-time-input">First Train Time (military time)</label>
+                                <input class="form-control" id="first-train-time-input" type="text">
+                            </div>
+                            <div class="form-group row">
+                                <label for="frequency-minutes-input">Frequency (minutes)</label>
+                                <input class="form-control" id="frequency-minutes-input" type="number">
+                            </div>
+                            
+                            <button class="btn btn-primary" id="submit-new-train" type="submit">Add Train</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>        
+    </div> <!-- end container -->
+    
+    <!-- All script files should go here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script> 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    
+   
+   <!-- Firebase -->
+   <script src="https://www.gstatic.com/firebasejs/5.5.1/firebase.js"></script>
+   <!-- a different Link to Moment.js  -->
+   <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
+   <script src="assets/javascript/app.js"></script>
+    
+     
+   
+</body>
+</html>
