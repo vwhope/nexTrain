@@ -1,39 +1,52 @@
+
+
 #container {
     margin: 0 auto;
     width: 80%;
 }
 
-#main-header {
-    background-image: url('../images/brandon-mowinkel-740740-unsplash_edt.jpg');
+img {
+    border-radius: 5px 5px 0px 0px;
+    border: 4px solid red;
 }
 
-h1 {
+#image-footer {
+    line-height: 50px;
+    background-color: black;
+    text-align: center;
     color: #ffffff;
+    font-size: 45px;
+    margin-bottom: 0;
 }
 
-h3 {
+#image-subfooter {
     font-style: italic;
+    font-size: 20px;
+    background-color: black;
     color: #ffffff;
-}
+    text-align: center;
+    margin-top: 0;
+    line-height: 50px;
+    border-radius: 0px 0px 5px 5px;
+   }
 
 .card {
-    margin-top: 25px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    /* margin-bottom: 25px; */
 
 }
 
 table {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
-    margin-top: 15px;
+    margin-top: 5px;
 }
  
 th {
      background: black;
      color: #ffffff;
      font-size: 14px;
-     
- }
+}
 
 td {
     border: 1px solid black;
@@ -45,14 +58,77 @@ tr:nth-child(even) {
     background-color: #e1effd;
 }
 
-#add-train-area {
-    margin-left: 150px;
-    font-size: 12px;
-    line-height: 10px;
-    border: 1px solid black;
-    padding-top: 10px;
+#train-name-header {
+    border-radius: 5px 0px 0px 0px;
 }
 
+#minutes-away-header {
+    border-radius: 0px 5px 0px 0px;
+}
 
+#add-train-area {
+    font-size: 12px;
+    line-height: 10px;
+    /* border: 1px solid black; */
+    padding-bottom: 10px;
+}
+
+#add-train-header {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#submit-new-train {
+    background-color: #ffe7ee;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid black;
+}
+
+input {
+    font-size: 12px; 
+    line-height: 12px;
+}
+ 
+#sidebar-area {
+    display: inline-block;
+    border: 1px solid black;
+}
+
+/* @media queries go here (bottom of style.css) */
+@media only screen and (max-width: 980px) {
+    .container {
+      /* background-color: lightblue; */
+      width: 80%;
+    }
+
+    #add-train-area {
+        width: 50%;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    /* For medium screen devices */
+        .container {
+          /* background-color: yellow; */
+          width: 80%;
+        }
+        #add-train-area {
+            width: 50%;
+        }
+
+}
+
+@media only screen and (max-width: 640px) {
+/* For small screen devices */
+    .contentArea {
+      /* background-color: green; */
+      width: 90%;
+    }
+
+    #add-train-area {
+        width: 80%;
+    }
+}
 
 
