@@ -1,10 +1,12 @@
 // nexTrain app - using Firebase and MomentJS
 //
 // The purpose of this code is to:
-//    gain experience using Firebase and MomentJS
+//    gain experience using Firebase and working with date/time objects with MomentJS
 //
 // Lessons learned with this assignment
 //
+// 1. understanding that the time object includes both date and time
+// 2. 
 // ================================ BEGIN GLOBAL VARIABLE DEFINITIONS =======================================================
 //
 // set GLOBAL variables available to all functions - (generally don't want global- is better to make an encapsulated object)
@@ -24,28 +26,19 @@ firebase.initializeApp(config);
 // create a reference to the firebase database
 var database = firebase.database();
 
-// create initial client-side variables, set initial values 
-// var trainName = "Initial Train";
-// var destination = "Initial Destination";
-// var tfirstTrainTime = 1200;
-// var tfrequencyMinutes = 60;
-// var nxtArrivalTime = "Initial nxtArrivalTime 05:35: PM"; // use moment.js to calc
-// var tminutesAway = 15; // moment.js to calc this
-
-
-// var usrFirstTrainTime = "1800"; // 24 hour clock
-// var tfirstTrainTime = usrFirstTrainTime; // 24 hour clock - military time, comes from user entry
-
 // ================================ END GLOBAL VARIABLE DEFINITIONS =========================================================
 
 // ================================ BEGIN FUNCTION DEFINITIONS  =============================================================
 //
 
 function updateClock(currentTime) {
-    // show current time in the Schedule header
-    currentTime = moment().format("dddd, MMMM Do YYYY, h:mm a");
-    console.log("var currentTime: " + currentTime);
-    $('#schedule-header').text(currentTime);     
+    // display updated current time in the Schedule header
+    
+    // update current time  
+    currentTime = moment();
+    
+    // display updated time in desired format
+    $('#schedule-header').text(moment(currentTime).format('dddd, MMMM Do YYYY, h:mm a')); 
 }
 
 // ================================ END FUNCTION DEFINITIONS ================================================================
@@ -54,9 +47,11 @@ function updateClock(currentTime) {
 //
 $(document).ready(function() {
     
-    // get current time, format it, update display  
-    var currentTime = moment().format("dddd, MMMM Do YYYY, h:mm a");
-    $('#schedule-header').text(currentTime); 
+    // get current time  
+    var currentTime = moment();
+    
+    // display it in desired format
+    $('#schedule-header').text(moment(currentTime).format('dddd, MMMM Do YYYY, h:mm a')); 
     
     // call function to update current time every minute
     setInterval('updateClock()', 60000);
@@ -129,22 +124,48 @@ $(document).ready(function() {
         console.log(usrFirstTrainTime);
         console.log(usrFrequencyMinutes);
         
+        //
+        // calc nxtArrivalTime AND minutesAway
+        // using momentJS and time/date math
+        //
+        //set frequency in minutes from user-input/database
+        var tFrequencyMinutes = usrFrequencyMinutes;
+        console.log('Frequency: ' + tFrequencyMinutes);
         
-        /////////////
-        // calc nxtArrivalTime 
-        var nxtArrivalTime = "05:25 PM"
+        // set first train time to converted military train time
+        // by subtracting a year here we don't have to test for multiple conditions
+        // like if first train time is greater, equal or less than current time
+        // as long as first train time date is less than current date/time
+        // you can just keep adding frequency to first train time until
+        // first train time is greater than or equal to current time
+        var tFirstTrainTime = moment(usrFirstTrainTime, 'HH:mm').subtract(1, 'years');
+        console.log('First Train Time: ' + tFirstTrainTime);
         
-        ////////////
-        
+        // get difference between current time and first Train time
+        var diffTime = moment().diff(moment(tFirstTrainTime), 'minutes');
+
+        // using the difference between current time and first train time
+        // divide that difference by the frequency and get the remainder
+        var tRemainder = diffTime % tFrequencyMinutes;
+        console.log(tRemainder);
+
+        // now that you have the time remaining subtract it from the frequency
+        var tMinutesTillTrain = tFrequencyMinutes - tRemainder;
+        console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+       
+        // Next Train
+        var nxtArrivalTime = moment().add(tMinutesTillTrain, "minutes").format('hh:mm A');
+        console.log("ARRIVAL TIME: " + nxtArrivalTime);
+
         /////////////
         // calc minutesAway
-        var minutesAway = "32" 
+        var minutesAway = tMinutesTillTrain; 
         ////////////
         
         
         
         // because there will be multiple rows, you cannot just update existing HTML
-        // you must build each new row and then addend the new row to the existing rows
+        // you must build each new row and then append the new row to the existing rows
         // then you can update the html page/display
         
         var newRow = $('<tr>').append(
@@ -163,7 +184,7 @@ $(document).ready(function() {
             console.log("The READ failed: " + errorObject.code);
             
         }); // END on child_added
-           
+        
     }); // end document.ready function
     
     // ================================ END Program here  ==========================================================================

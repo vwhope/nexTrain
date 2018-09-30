@@ -74,8 +74,10 @@ tr:nth-child(even) {
 }
 
 #add-train-header {
-    font-weight: bold;
+    /* font-weight: bold; */
     font-size: 15px;
+    background-color: black;
+    color: #ffffff;
 }
 
 #submit-new-train {
@@ -85,7 +87,7 @@ tr:nth-child(even) {
     border: 1px solid black;
 }
 
-input {
+input { 
     font-size: 12px; 
     line-height: 12px;
 }
@@ -93,6 +95,8 @@ input {
 #sidebar-area {
     display: inline-block;
     border: 1px solid black;
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 
 /* @media queries go here (bottom of style.css) */
