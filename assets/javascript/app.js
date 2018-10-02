@@ -39,6 +39,22 @@ function updateClock(currentTime) {
     
     // display updated time in desired format
     $('#schedule-header').text(moment(currentTime).format('dddd, MMMM Do YYYY, h:mm a')); 
+} // end updateClock
+
+// every minute, iterate through each row in train-table
+// re-calc nxtArrivalTime and MinutesAway fields based on current moment in time
+// update display values 
+// function updateTimeFields() {
+//  $('<tr>').forEach(function() {
+//      console.log($('#frequency-display').html());
+
+//  });
+
+// } // end updateTimeFields
+
+function updateTable() {
+    currentTime = moment();
+    $('#train-table').load('index.html');
 }
 
 // ================================ END FUNCTION DEFINITIONS ================================================================
@@ -56,19 +72,86 @@ $(document).ready(function() {
     // call function to update current time every minute
     setInterval('updateClock()', 60000);
     
+    // USER-INPUT VALIDATION PRIOR to Submit Button
+    //
+    // Train name required - cannot be blank
+    $('#train-name-input').on('input', function() {
+        var input=$(this);
+        var is_name=input.val();
+        console.log(is_name);
+        
+        if (is_name) {input.removeClass('invalid').addClass('valid');}
+        else {input.removeClass('valid').addClass('invalid');}
+    });
+    
+    // Train destination required - cannot be blank
+    $('#destination-input').on('input', function() {
+        var input=$(this);
+        var is_dest=input.val();
+        if (is_dest) {input.removeClass('invalid').addClass('valid');}
+        else {input.removeClass('valid').addClass('invalid');}
+    });
+    
+    // First Train Time required in 4-digit military time - cannot be blank
+    $('#first-train-time-input').on('input', function() {
+        var input=$(this);
+        var is_ftt=input.val();
+        if (is_ftt) {input.removeClass('invalid').addClass('valid');}
+        else {input.removeClass('valid').addClass('invalid');}
+    });
+    
+    
+    // Frequency in minutes required - must be a number - cannot be blank
+    $('#frequency-minutes-input').keyup('input', function() {
+        var input=$(this);
+        var is_freq=input.val();
+        if (is_freq) {input.removeClass('invalid').addClass('valid');}
+        else {input.removeClass('valid').addClass('invalid');}
+    });
+    
     // -------------------------
     // ADD NEW TRAIN to database
     // -------------------------
+    
     $("#submit-new-train").on("click", function(event) {
-        event.preventDefault();
+        event.preventDefault(); 
+        
+        //////////////////////////////////////////////////////////////////////    
+        
+        
+        // put form input into an array, if errors don't submit form
+        var form_data=$('#new-train').serializeArray();
+        console.log(form_data);
+        
+        var error_free = true;
+        for (var input in form_data) {
+            var element=$('#new-train_' + form_data[input] ['name']);
+            var valid=element.hasClass('valid');
+            var error_element=$('span', element.parent());
+            
+            if (!valid){error_element.removeClass('error').addClass('error_show'); error_free = false;}
+            else {error_element.removeClass('error_show').addClass('error');}
+            
+        }
+        
+        if (!error_free) {
+            event.preventDefault();
+        }
+        else {
+            console.log('No errors found!');
+        }
+        
+        
+        
+        /////////////////////////////////////////////////////////////////////////////////////////////////
         
         // get user input values for new train
         var usrTrainName = $("#train-name-input").val().trim();
         var usrDestination = $("#destination-input").val().trim();
-        var tusrFirstTrainTime = parseInt($("#first-train-time-input").val().trim()); // get user-entered string and convert to number
+        var tusrFirstTrainTime = $("#first-train-time-input").val().trim(); // don't parse into a number or it will kill leading zeros and cause NAN error
         var tusrFrequencyMinutes = parseInt($("#frequency-minutes-input").val().trim()); // get user-entered string then convert to number
         
-        // create object to hold newTrain (key: value pairs)
+        // create object to hold newTrain (KEY: value pairs) 
         var newTrain = {
             trainName: usrTrainName,
             destination: usrDestination,
@@ -104,15 +187,15 @@ $(document).ready(function() {
     // 2. set firebase to automatically notice a new train was added to the DB 
     // 3. Once noticed, add the new train info AND calculated fields to the HTML/display 
     //
-    // setup the watch for value changes in DB and initial load of variables
-    // this is the "on value change" do something
+    // setup watch for when new child is added to DB, also on initial load of variables
+    // this is the "on child_added change" do something
     
     database.ref().on("child_added", function(childSnapshot) {
         
         console.log(childSnapshot.val()); // see what data looks like at this time
         
         
-        // set client-side variables eq to database values (NOT the KEY, but the value)
+        // set client-side variables eq to database values (the key's value)
         var usrTrainName = childSnapshot.val().trainName;
         var usrDestination = childSnapshot.val().destination;
         var usrFirstTrainTime = childSnapshot.val().firstTrainTime; // may have a # to string issue here (parseInt)
@@ -143,37 +226,37 @@ $(document).ready(function() {
         
         // get difference between current time and first Train time
         var diffTime = moment().diff(moment(tFirstTrainTime), 'minutes');
-
+        
         // using the difference between current time and first train time
         // divide that difference by the frequency and get the remainder
         var tRemainder = diffTime % tFrequencyMinutes;
         console.log(tRemainder);
-
+        
         // now that you have the time remaining subtract it from the frequency
         var tMinutesTillTrain = tFrequencyMinutes - tRemainder;
         console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-       
+        
         // Next Train
         var nxtArrivalTime = moment().add(tMinutesTillTrain, "minutes").format('hh:mm A');
         console.log("ARRIVAL TIME: " + nxtArrivalTime);
-
+        
         /////////////
-        // calc minutesAway
+        // update minutesAway
         var minutesAway = tMinutesTillTrain; 
         ////////////
         
         
         
-        // because there will be multiple rows, you cannot just update existing HTML
-        // you must build each new row and then append the new row to the existing rows
+        // because there will be multiple rows, you cannot just update a single row in existing HTML
+        // you must build each new row as info is added, then append new row to existing rows
         // then you can update the html page/display
         
         var newRow = $('<tr>').append(
-            $('<td>').text(usrTrainName),
-            $('<td>').text(usrDestination),
-            $('<td>').text(usrFrequencyMinutes),
-            $('<td>').text(nxtArrivalTime),
-            $('<td>').text(minutesAway)    
+            $('<td>').text(usrTrainName).attr('id', 'train-name-display'),
+            $('<td>').text(usrDestination).attr('id', 'destination-display'),
+            $('<td>').text(usrFrequencyMinutes).attr('id', 'frequency-display'),
+            $('<td>').text(nxtArrivalTime).attr('id', 'next-arrival-display'),
+            $('<td>').text(minutesAway).attr('id', 'minutes-away-display')    
             );
             
             // append the new row to the train schedule
@@ -185,6 +268,7 @@ $(document).ready(function() {
             
         }); // END on child_added
         
+        
     }); // end document.ready function
     
     // ================================ END Program here  ==========================================================================
@@ -192,11 +276,12 @@ $(document).ready(function() {
     // 1.  wait until html page is loaded before running any JavaScript - document.ready() 
     // 2.  set up config file for Firebase database - server-side
     // 3.  initialize global variables with default values - client-side
-    // 4.  set up the on.value change for the database
+    // 4.  set up the on.child-added change for the database
     // 5.  if there is something in the database, sync it with the client side
-    // 6.  set up addTrain function to add new record to DB
-    // 7.  once working with one record add loop functionality to read all DB records and updat the screen
-    // 8.  add calculations for the next arrival and  minutes away fields that are NOT stored in the DB
-    // 9.  add graphics if time
+    // 6.  create addTrain function to add new train record to Firebase database
+    // 7.  include input validation checking for addTrain function
+    // 8.  get code working with one record first, then add additional functionality
+    // 9.  add calculations for Next Arrival and Minutes Away fields that are NOT stored in the DB
+    // 10. add visual/graphic elements and additional functionality if time
     
     
