@@ -1,16 +1,21 @@
 // nexTrain app - using Firebase and MomentJS
 //
 // The purpose of this code is to:
-//    gain experience using Firebase and working with date/time objects with MomentJS
+//   - gain experience using Firebase
+//   - work with date/time objects using MomentJS
+//   - implement user-input validation
 //
 // Lessons learned with this assignment
 //
 // 1. understanding that the time object includes both date and time
-// 2. 
+// 2. pros/cons updating the entire HTML page using location.reload()
+// 3. learning various ways to perform user-input validation (regular expressions, jQuery validation, HTML validation)
+//
 // ================================ BEGIN GLOBAL VARIABLE DEFINITIONS =======================================================
 //
-// set GLOBAL variables available to all functions - (generally don't want global- is better to make an encapsulated object)
-// config file that links to my firebase DB
+// set GLOBAL variables available to all functions 
+//
+// config file that links to application's firebase DB
 var config = {
     apiKey: "AIzaSyDov32GoGzCM0YWTCAAqh0OKFxVHGeQFMY",
     authDomain: "nextrain-4c3e9.firebaseapp.com",
@@ -20,10 +25,10 @@ var config = {
     messagingSenderId: "891982050906"
 };
 
-// initialize firebase with my config file that links to the database
+// initialize firebase with config file that links to the database
 firebase.initializeApp(config);
 
-// create a reference to the firebase database
+// create a reference to the firebase database, in this case the referenence is to the root directory
 var database = firebase.database();
 
 // ================================ END GLOBAL VARIABLE DEFINITIONS =========================================================
@@ -32,7 +37,6 @@ var database = firebase.database();
 //
 
 function updateClock(currentTime) {
-    // display updated current time in the Schedule header
     
     // update current time  
     currentTime = moment();
@@ -41,27 +45,26 @@ function updateClock(currentTime) {
     $('#schedule-header').text(moment(currentTime).format('dddd, MMMM Do YYYY, h:mm a')); 
 } // end updateClock
 
-// every minute, iterate through each row in train-table
-// re-calc nxtArrivalTime and MinutesAway fields based on current moment in time
-// update display values 
-function updateTable() {
-    //  $('<tr>').forEach(function() {
-    //      console.log($('#frequency-display').html());
+// none of these attempts work - can delete eventually after understand why they are not viable options here
+//function updateTable() {
+//  $('<tr>').forEach(function() {
+//      console.log($('#frequency-display').html());
 
-    // doesn't work - .rows, .length not a function or undefined
-    //    var rowsInTable = document.getElementById('train-table').rows.length;
-    //    console.log("Rows in Table: " + rowsInTable);
+// doesn't work - .rows, .length not a function or undefined
+//    var rowsInTable = document.getElementById('train-table').rows.length;
+//    console.log("Rows in Table: " + rowsInTable);
 
-    // var table = document.getElementById('train-table');
-    // table.refresh();
-    
-    // code below doesn't work - seems I need node.js to make it work?
-    //  $('#train-table').load(' #train-table');
-    
-} // end updateTable
+// var table = document.getElementById('train-table'); doesn't work
+// table.refresh();
 
+// code below doesn't work - seems I need node.js to make it work?
+//  $('#train-table').load(' #train-table');
 
+//} // end updateTable
 
+// THEORETICALLY - location.reload(true) will successfully refresh the entire page like the browser does.
+// the (true) parameter forces a reload from the server, where as if left blank or enter false, the page reloads from cache.
+// it is not a great idea to refresh this way though, because you are reloading the entire page each time.
 
 // ================================ END FUNCTION DEFINITIONS ================================================================
 //
@@ -75,10 +78,11 @@ $(document).ready(function() {
     // display it in desired format
     $('#schedule-header').text(moment(currentTime).format('dddd, MMMM Do YYYY, h:mm a')); 
     
-    // call function to update current time every minute
-    setInterval('updateClock()', 60000);
+    // update current time every minute
+    setInterval(updateClock, 60000); 
     
-    // setInterval('updateTable()', 60000);
+    // update table every minute so that times change as current time changes
+    setInterval(refreshTable, 60000);
     
     // USER-INPUT VALIDATION PRIOR to Submit Button
     //
@@ -103,7 +107,17 @@ $(document).ready(function() {
     // First Train Time required in 4-digit military time - cannot be blank
     // regular expression for 24 hour time is:
     // ([01]?[0-9]|2[0-3]):[0-5][0-9]
-    // but seems like I should be able to use MomentJS to validate this but it doesn't work????
+    // could use this but better to use MomentJS library to test
+    
+    ///////////////////////////////////////
+    // NEXT STEP implement below from Maria
+    //var time = moment($("#first-train-time-input").val().trim(), "HH:mm").format("X");
+    //if (time === "Invalid date") {
+    //console.error("Please enter in military time HH:mm");
+    //return;
+    // } /////////////////////////////////////
+    
+    
     $('#first-train-time-input').on('input', function() {
         var input=$(this);
         var is_fft=input.val();
@@ -131,9 +145,7 @@ $(document).ready(function() {
             $("#submit-new-train").on("click", function(event) {
                 event.preventDefault(); 
                 
-                //////////////////////////////////////////////////////////////////////    
-                
-                
+                // USER-INPUT VALIDATION AFTER Submit Button
                 // put form input into an array, if errors don't submit form
                 var form_data=$('#new-train').serializeArray();
                 console.log(form_data);
@@ -146,7 +158,6 @@ $(document).ready(function() {
                     
                     if (!valid){error_element.removeClass('error').addClass('error_show'); error_free = false;}
                     else {error_element.removeClass('error_show').addClass('error');}
-                    
                 }
                 
                 if (!error_free) {
@@ -156,9 +167,6 @@ $(document).ready(function() {
                     console.log('No errors found!');
                 }
                 
-                
-                
-                /////////////////////////////////////////////////////////////////////////////////////////////////
                 
                 // get user input values for new train
                 var usrTrainName = $("#train-name-input").val().trim();
@@ -205,95 +213,99 @@ $(document).ready(function() {
             // setup watch for when new child is added to DB, also on initial load of variables
             // this is the "on child_added change" do something
             
-            database.ref().on("child_added", function(childSnapshot) {
-                
-                console.log(childSnapshot.val()); // see what data looks like at this time
-                
-                
-                // set client-side variables eq to database values (the key's value)
-                var usrTrainName = childSnapshot.val().trainName;
-                var usrDestination = childSnapshot.val().destination;
-                var usrFirstTrainTime = childSnapshot.val().firstTrainTime; // may have a # to string issue here (parseInt)
-                var usrFrequencyMinutes = childSnapshot.val().frequency; // may have # to string issue here
-                
-                // New Train 
-                console.log(usrTrainName);
-                console.log(usrDestination);
-                console.log(usrFirstTrainTime);
-                console.log(usrFrequencyMinutes);
-                
-                //
-                // calc nxtArrivalTime AND minutesAway
-                // using momentJS and time/date math
-                //
-                //set frequency in minutes from user-input/database
-                var tFrequencyMinutes = usrFrequencyMinutes;
-                console.log('Frequency: ' + tFrequencyMinutes);
-                
-                // set first train time to converted military train time
-                // by subtracting a year here we don't have to test for multiple conditions
-                // like if first train time is greater, equal or less than current time
-                // as long as first train time date is less than current date/time
-                // you can just keep adding frequency to first train time until
-                // first train time is greater than or equal to current time
-                var tFirstTrainTime = moment(usrFirstTrainTime, 'HH:mm').subtract(1, 'years');
-                console.log('First Train Time: ' + tFirstTrainTime);
-                
-                // get difference between current time and first Train time
-                var diffTime = moment().diff(moment(tFirstTrainTime), 'minutes');
-                
-                // using the difference between current time and first train time
-                // divide that difference by the frequency and get the remainder
-                var tRemainder = diffTime % tFrequencyMinutes;
-                console.log(tRemainder);
-                
-                // now that you have the time remaining subtract it from the frequency
-                var tMinutesTillTrain = tFrequencyMinutes - tRemainder;
-                console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-                
-                // Next Train
-                var nxtArrivalTime = moment().add(tMinutesTillTrain, "minutes").format('hh:mm A');
-                console.log("ARRIVAL TIME: " + nxtArrivalTime);
+            function refreshTable() {
+                $('#train-table > tbody').empty(); // clears entire table    
                 
                 
-                // update minutesAway
-                var minutesAway = tMinutesTillTrain; 
-                
-                ///////////////////////////////////////////////////////////////////////////////////////
-                //////////// issue here is that I need to read all rows of the table 
-                // this needs to be done in a different place and on setInterval of one minute
-                // at same time place I update the next arrival time and minutes away
-                
-                $('#train-table tr td').each(function(){
-                    if(minutesAway < 16)$('#minutes-away-display').css('background-color','#ffe7ee');
-                });
-                
-                ////////////////////////////////////////////////////////////////////////////////////////  
-                
-                
-                // because there will be multiple rows, you cannot just update a single row in existing HTML
-                // you must build each new row as info is added, then append new row to existing rows
-                // then you can update the html page/display
-                
-                var newRow = $('<tr>').append(
-                    $('<td>').text(usrTrainName).attr('id', 'train-name-display'),
-                    $('<td>').text(usrDestination).attr('id', 'destination-display'),
-                    $('<td>').text(usrFrequencyMinutes).attr('id', 'frequency-display'),
-                    $('<td>').text(nxtArrivalTime).attr('id', 'next-arrival-display'),
-                    $('<td>').text(minutesAway).attr('id', 'minutes-away-display')    
-                    );
+                database.ref().on("child_added", function(childSnapshot) {
                     
-                    // append the new row to the train schedule
-                    $('#train-table > tbody').append(newRow)
+                    console.log(childSnapshot.val()); // see what data looks like at this time
                     
-                    // log any errors to console so can trouble shoot 
-                }, function(errorObject) {
-                    console.log("The READ failed: " + errorObject.code);
                     
+                    // set client-side variables eq to database values (the key's value)
+                    var usrTrainName = childSnapshot.val().trainName;
+                    var usrDestination = childSnapshot.val().destination;
+                    var usrFirstTrainTime = childSnapshot.val().firstTrainTime; // may have a # to string issue here (parseInt)
+                    var usrFrequencyMinutes = childSnapshot.val().frequency; // may have # to string issue here
+                    
+                    // New Train 
+                    console.log(usrTrainName);
+                    console.log(usrDestination);
+                    console.log(usrFirstTrainTime);
+                    console.log(usrFrequencyMinutes);
+                    
+                    //
+                    // calc nxtArrivalTime AND minutesAway
+                    // using momentJS and time/date math
+                    //
+                    //set frequency in minutes from user-input/database
+                    var tFrequencyMinutes = usrFrequencyMinutes;
+                    console.log('Frequency: ' + tFrequencyMinutes);
+                    
+                    // set first train time to converted military train time
+                    // by subtracting a year here we don't have to test for multiple conditions
+                    // like if first train time is greater, equal or less than current time
+                    // as long as first train time date is less than current date/time
+                    // you can just keep adding frequency to first train time until
+                    // first train time is greater than or equal to current time
+                    var tFirstTrainTime = moment(usrFirstTrainTime, 'HH:mm').subtract(1, 'years');
+                    console.log('First Train Time: ' + tFirstTrainTime);
+                    
+                    // get difference between current time and first Train time
+                    var diffTime = moment().diff(moment(tFirstTrainTime), 'minutes');
+                    
+                    // using the difference between current time and first train time
+                    // divide that difference by the frequency and get the remainder
+                    var tRemainder = diffTime % tFrequencyMinutes;
+                    console.log(tRemainder);
+                    
+                    // now that you have the time remaining subtract it from the frequency
+                    var tMinutesTillTrain = tFrequencyMinutes - tRemainder;
+                    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+                    
+                    // Next Train
+                    var nxtArrivalTime = moment().add(tMinutesTillTrain, "minutes").format('hh:mm A');
+                    console.log("ARRIVAL TIME: " + nxtArrivalTime);
+                    
+                    // update minutesAway
+                    var minutesAway = tMinutesTillTrain; 
+                    
+                    ///////////////////////////////////////////////////////////////////////////////////////
+                    ///issue here is that eventually all rows are less than 16 minutes away 
+                    // so as time ticks by, eventually they are all pink! BUG HERE!
+                    
+                    if (minutesAway < 16) $('.minutes-away-display').css('background-color','#ffe7ee');
+                    console.log("Minutes Away: " + minutesAway);
+                    
+                    ////////////////////////////////////////////////////////////////////////////////////////  
+                    
+                    
+                    // because there will be multiple rows, you cannot just update a single row in existing HTML
+                    // you must build each new row as info is added, then append new row to existing rows
+                    // then you can update the html page/display
+                    
+                    var newRow = $('<tr>').append(
+                        $('<td>').text(usrTrainName).attr('class', 'train-name-display'),
+                        $('<td>').text(usrDestination).attr('class', 'destination-display'),
+                        $('<td>').text(usrFrequencyMinutes).attr('class', 'frequency-display'),
+                        $('<td>').text(nxtArrivalTime).attr('class', 'next-arrival-display'),
+                        $('<td>').text(minutesAway).attr('class', 'minutes-away-display')    
+                        );
+                        
+                        // append the new row to the train schedule
+                        $('#train-table > tbody').append(newRow)
+                        
+                        // log any errors to console so can trouble shoot 
+                    }, function(errorObject) {
+                        console.log("The READ failed: " + errorObject.code);
+                        
                 }); // END on child_added
+                    
+            } // end new function to reload table   
                 
+            refreshTable();
                 
-            }); // end document.ready function
+}); // end document.ready function
             
             // ================================ END Program here  ==========================================================================
             // my pseudo code for the app
