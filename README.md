@@ -1,19 +1,29 @@
 # nexTrain
 Deployed Link: [nexTrain](https://vwhope.github.io/nexTrain/)
 
-### an example train timetable using Firebase and MomentJS
+### a train timetable using Firebase and Moment.js
 
+**Problems to Solve**
+* update train table based on current time
+* add user-entered trains to train table in real time
+* perform date/time math to calculate time fields, format time for display
+* update calculated time fields based on current time without page refresh
 
+**Solution** 
 
-**Skills demonstrated in project:**
-* inclusion and use of supplemental JavaScript library (Moment.js)
-  * experience with time/date math
-  * experience maintaining values based on current/changing time
-  * experience with time/date formats  
-* inclusion and use of persistent data storage using Firebase
-    * experience with database design, what to store/what not to store
-    * linking to database
-    * read/write/remove data in database
+Use Firebase database to store user-input, but not calcuated time fields. Use timing events to update time fields every minute. Use moment.js functions to re-calculate time fields (next arrival time, minutes away) based on current time
+as well as format the date/time for display.
+ 
+
+**Technical Skills demonstrated in project:**
+* use of JavaScript library (Moment.js)
+  * time/date math
+  * maintaini values based on current/changing time
+  * apply time/date formats  
+* persistent data storage using Firebase
+    * database considerations: what to store/what not to store
+    * link to database
+    * read/write data 
 * mobile responsive design
     
 **Goals of program:**
@@ -45,3 +55,8 @@ Photographer Name | Photo used
 Brandon Mowinkel | main photo - commuter train, blurred background 
 JESHOOTS | train station, blurred train
 
+**Future Enhancement Ideas:**
+* Add weather forecast for this station for current day
+* Add information about the train/station/area
+* Add traffic bulletins for local area
+* Add local map - you are here graphic

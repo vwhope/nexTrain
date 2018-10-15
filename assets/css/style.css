@@ -1,5 +1,3 @@
-
-
 #container {
     margin: 0 auto;
     width: 80%;
@@ -43,8 +41,6 @@ img {
 
 .card {
     margin-top: 10px;
-    /* margin-bottom: 25px; */
-    
 }
 
 table {
@@ -77,18 +73,20 @@ tr:nth-child(even) {
     border-radius: 0px 5px 0px 0px;
 }
 
+.minutes-away-soon {
+    background-color: #ffe7ee;   
+}
+
 #table-footer {
     font-size: 12px;
     font-weight: bold;
     font-style: italic;
-    
     text-align: center;
 }
 
 #add-train-area {
     font-size: 12px;
     line-height: 10px;
-    /* border: 1px solid black; */
     padding-bottom: 10px;
 }
 
